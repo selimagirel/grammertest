@@ -68,8 +68,12 @@ export default function GrammarExercise({
       const data = await response.json()
 
       if (data.success) {
-        // Store result in session storage and navigate to results page
+        // Store result and exercise data in session storage
         sessionStorage.setItem('grading_result', JSON.stringify(data.data))
+        sessionStorage.setItem(
+          'current_exercise',
+          JSON.stringify({ level, topic, questions })
+        )
         router.push('/results')
       } else {
         toast({

@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Loader2, ArrowLeft } from 'lucide-react'
+import { Loader2, ArrowLeft, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useToast } from '@/hooks/use-toast'
 import Link from 'next/link'
 import GrammarExercise from '@/components/exercises/GrammarExercise'
 import { GrammarExercise as GrammarExerciseType } from '@/types'
 import { getSessionId } from '@/lib/utils'
+import { generateAndDownloadPDF } from '@/lib/pdf-generator'
 
 export default function ExercisePage() {
   const searchParams = useSearchParams()
@@ -232,15 +233,116 @@ export default function ExercisePage() {
           />
         )}
 
-        {type === 'vocabulary' && subtype === 'flashcards' && (
-          <div className="text-center py-12">
-            <p className="text-xl">Flashcard component coming soon...</p>
+        {type === 'vocabulary' && subtype === 'flashcards' && exercise.cards && (
+          <div>
+            <div className="flex justify-end mb-4">
+              <Button
+                onClick={() => {
+                  generateAndDownloadPDF('flashcards', { ...exercise, level })
+                  toast({
+                    title: 'Success',
+                    description: 'PDF downloaded successfully!',
+                  })
+                }}
+                className="gap-2"
+              >
+                <Download className="w-4 h-4" />
+                Download Flashcards PDF
+              </Button>
+            </div>
+            <div className="grid gap-6">
+              {exercise.cards.map((card: any, index: number) => (
+                <div key={index} className="card">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-2xl font-bold text-gradient">{card.word}</h3>
+                    {card.partOfSpeech && (
+                      <span className="text-sm text-purple-400 italic">
+                        ({card.partOfSpeech})
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-lg mb-4">{card.definition}</p>
+                  <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+                    <p className="text-sm text-gray-400 mb-1">Example:</p>
+                    <p className="italic">"{card.exampleSentence}"</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
+        {type === 'vocabulary' &&
+          (subtype === 'multiple-choice' || subtype === 'fill-in-blank') &&
+          exercise.questions && (
+            <div>
+              <div className="flex justify-end mb-4">
+                <Button
+                  onClick={() => {
+                    generateAndDownloadPDF('vocabulary', { ...exercise, level })
+                    toast({
+                      title: 'Success',
+                      description: 'PDF downloaded successfully!',
+                    })
+                  }}
+                  className="gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Download PDF
+                </Button>
+              </div>
+              <div className="space-y-6">
+                {exercise.questions.map((question: any, index: number) => (
+                  <div key={index} className="card">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Question {index + 1} of {exercise.questions.length}
+                    </h3>
+                    <p className="text-xl mb-4">{question.question}</p>
+                    {question.options && (
+                      <div className="space-y-2">
+                        {question.options.map((option: string, optionIndex: number) => (
+                          <div
+                            key={optionIndex}
+                            className="p-3 rounded-lg bg-gray-800/50 border border-gray-700"
+                          >
+                            <span className="font-semibold mr-3">
+                              {String.fromCharCode(65 + optionIndex)}.
+                            </span>
+                            {option}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {question.definition && (
+                      <div className="mt-4 text-sm text-gray-400">
+                        Definition: {question.definition}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         {type === 'paragraph' && (
           <div className="card">
-            <h2 className="text-2xl font-bold mb-4">Reading Paragraph</h2>
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-2xl font-bold">Reading Paragraph</h2>
+              <Button
+                onClick={() => {
+                  generateAndDownloadPDF('paragraph', { ...exercise, level })
+                  toast({
+                    title: 'Success',
+                    description: 'PDF downloaded successfully!',
+                  })
+                }}
+                className="gap-2"
+                size="sm"
+              >
+                <Download className="w-4 h-4" />
+                Download PDF
+              </Button>
+            </div>
             <p className="text-lg leading-relaxed mb-6">{exercise.paragraph}</p>
             <div className="text-sm text-gray-400">
               {exercise.sentences} sentences • {level} level

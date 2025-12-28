@@ -2,34 +2,66 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { GradingResult } from '@/types'
+import { GradingResult, GrammarExercise } from '@/types'
 import { Check, X, Download, Home } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { useToast } from '@/hooks/use-toast'
 import Link from 'next/link'
+import { generateAndDownloadPDF } from '@/lib/pdf-generator'
 
 export default function ResultsPage() {
   const router = useRouter()
+  const { toast } = useToast()
   const [result, setResult] = useState<GradingResult | null>(null)
+  const [exercise, setExercise] = useState<GrammarExercise | null>(null)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
 
   useEffect(() => {
-    // Get result from session storage
+    // Get result and exercise from session storage
     const savedResult = sessionStorage.getItem('grading_result')
+    const savedExercise = sessionStorage.getItem('current_exercise')
+
     if (savedResult) {
       setResult(JSON.parse(savedResult))
     } else {
       // No result found, redirect to home
       router.push('/')
     }
+
+    if (savedExercise) {
+      setExercise(JSON.parse(savedExercise))
+    }
   }, [router])
 
   const handleDownloadPDF = async () => {
+    if (!result || !exercise) {
+      toast({
+        title: 'Error',
+        description: 'No exercise data available to generate PDF',
+        variant: 'destructive',
+      })
+      return
+    }
+
     setIsGeneratingPDF(true)
-    // TODO: Implement PDF generation
-    setTimeout(() => {
+
+    try {
+      generateAndDownloadPDF('results', exercise, result)
+
+      toast({
+        title: 'Success',
+        description: 'PDF downloaded successfully!',
+      })
+    } catch (error) {
+      console.error('PDF generation error:', error)
+      toast({
+        title: 'Error',
+        description: 'Failed to generate PDF. Please try again.',
+        variant: 'destructive',
+      })
+    } finally {
       setIsGeneratingPDF(false)
-      alert('PDF download functionality coming soon!')
-    }, 1000)
+    }
   }
 
   if (!result) {
