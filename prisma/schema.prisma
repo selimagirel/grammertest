@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  name              String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  emailVerified     Boolean   @default(false) @map("email_verified")
+  preferredLanguage String    @default("en") @map("preferred_language")
+
+  subscriptions       Subscription[]
+  trialUsage          TrialUsage?
+  exerciseHistory     ExerciseHistory[]
+  payments            Payment[]
+  verificationTokens  VerificationToken[]
+
+  @@map("users")
+}
+
+model Subscription {
+  id                    String   @id @default(uuid())
+  userId                String   @map("user_id")
+  planType              String   @map("plan_type") // 'monthly' or 'yearly'
+  status                String   // 'active', 'cancelled', 'expired'
+  startDate             DateTime @map("start_date")
+  endDate               DateTime @map("end_date")
+  autoRenew             Boolean  @default(true) @map("auto_renew")
+  paymentGateway        String?  @map("payment_gateway") // 'iyzico' or 'stripe'
+  gatewaySubscriptionId String?  @map("gateway_subscription_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model TrialUsage {
+  id              String   @id @default(uuid())
+  userId          String?  @unique @map("user_id")
+  sessionId       String?  @unique @map("session_id")
+  grammarCount    Int      @default(3) @map("grammar_count")
+  vocabularyCount Int      @default(3) @map("vocabulary_count")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("trial_usage")
+}
+
+model ExerciseHistory {
+  id              String   @id @default(uuid())
+  userId          String?  @map("user_id")
+  exerciseType    String   @map("exercise_type")
+  level           String
+  topic           String?
+  score           Int?
+  totalQuestions  Int?     @map("total_questions")
+  correctAnswers  Int?     @map("correct_answers")
+  createdAt       DateTime @default(now()) @map("created_at")
+  exerciseData    Json     @map("exercise_data")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("exercise_history")
+}
+
+model Payment {
+  id                   String   @id @default(uuid())
+  userId               String   @map("user_id")
+  amount               Decimal  @db.Decimal(10, 2)
+  currency             String
+  paymentGateway       String   @map("payment_gateway")
+  gatewayTransactionId String?  @map("gateway_transaction_id")
+  status               String   // 'success', 'failed', 'pending'
+  invoiceUrl           String?  @map("invoice_url")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  type      String   // 'email_verification', 'password_reset'
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification_tokens")
+}

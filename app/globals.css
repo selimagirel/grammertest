@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 26% 10%;
+    --foreground: 0 0% 91%;
+    --card: 210 26% 10%;
+    --card-foreground: 0 0% 91%;
+    --popover: 210 26% 10%;
+    --popover-foreground: 0 0% 91%;
+    --primary: 250 69% 72%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 17% 63%;
+    --secondary-foreground: 0 0% 91%;
+    --muted: 210 26% 15%;
+    --muted-foreground: 214 17% 63%;
+    --accent: 250 69% 72%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 354 70% 54%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 26% 20%;
+    --input: 210 26% 20%;
+    --ring: 250 69% 72%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-gradient-to-br from-[#1a1a2e] to-[#16213e] text-foreground;
+    font-family: Georgia, serif;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+  h1 {
+    @apply text-[2.5rem] font-bold;
+  }
+  h2 {
+    @apply text-[1.8rem] font-bold;
+  }
+  h3 {
+    @apply text-[1.5rem] font-semibold;
+  }
+}
+
+@layer components {
+  .gradient-purple {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .gradient-pink {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+
+  .btn-primary {
+    @apply px-10 py-4 text-lg font-semibold text-white rounded-[10px] transition-all duration-300;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+  }
+
+  .btn-primary:hover {
+    @apply -translate-y-0.5;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+  }
+
+  .card {
+    @apply rounded-[15px] p-10 backdrop-blur-sm;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .correct-answer {
+    @apply bg-[#d4edda] border-2 border-[#28a745] rounded-lg p-4;
+  }
+
+  .incorrect-answer {
+    @apply bg-[#f8d7da] border-2 border-[#dc3545] rounded-lg p-4;
+  }
+
+  .explanation-box {
+    @apply bg-[#fff3cd] border-2 border-[#ffc107] rounded-lg p-4 mt-2;
+  }
+
+  .container-custom {
+    @apply max-w-6xl mx-auto px-5 sm:px-10;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
